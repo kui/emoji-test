@@ -3,7 +3,7 @@
 
 # 絵文字見るためのHTMLを生成する。
 
-require 'kconv'
+require 'cgi'
 
 def main
   print_head
@@ -22,7 +22,7 @@ def print_head
 .symbola {
   font-family: 'Symbola';
 }
-.code {
+.codes {
   font-family: monospace;
   text-align: center;
 }
@@ -123,7 +123,7 @@ def print_table offset_bytes, num
   offset = Utf32.new(offset_bytes)
   puts '<table class="codes">'
   puts '<tr><th>CODE</th>'
-  puts (0..15).map {|i| '<th>+%01x</th>' % i}.join
+  puts (0..15).map {|i| '<th class="code">+%01x</th>' % i}.join
   puts '</tr>'
   num.times { |i|
     code = offset.add(i)
@@ -144,10 +144,10 @@ end
 def print_code code
   puts '<td><table>'
   puts %Q|<tr>|
-  puts %Q|  <td title="Symbola" class="symbola">#{code.to_utf8}</td>|
-  puts %Q|  <td title="Native">#{code.to_utf8}</td>|
+  puts %Q|  <td title="Symbola" class="symbola">#{code.to_html}</td>|
+  puts %Q|  <td title="Native">#{code.to_html}</td>|
   puts %Q|</tr>|
-  puts %Q!<tr><td class="code" colspan="2">#{code.to_hex}</td></tr>!
+  puts %Q!<tr><td class="code" colspan="2">#{CGI.escapeHTML code.to_html}</td></tr>!
   puts '</table></td>'
 end
 
