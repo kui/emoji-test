@@ -8,17 +8,23 @@ require 'kconv'
 def main
   print_head
   print_body
+  # print_plain "\x00\x00\x32\x00", 16*16
 end
 
 def print_head
   puts "<style>"
   puts <<STYLE
 @font-face {
-  font-family: symbola;
-  src: url(symbola.woff) format(woff);
+  font-family: 'Symbola';
+  src: url('symbola.woff') format('woff'),
+       url('symbola.ttf') format('truetype');
 }
 .symbola {
-  font-family: symbola!important;
+  font-family: 'Symbola';
+}
+.code {
+  font-family: monospace;
+  text-align: center;
 }
 STYLE
   puts "</style>"
@@ -45,6 +51,10 @@ HTML
       title: 'Miscellaneous Symbols and Arrows',
       url: 'http://www.unicode.org/charts/PDF/U2B00.pdf',
       offset:"\x00\x00\x2b\x00", num: 16*12
+    }, {
+      title: 'Enclosed CJK Letters and Months',
+      url: 'http://www.unicode.org/charts/PDF/U3200.pdf',
+      offset:"\x00\x00\x32\x00", num: 16*16
     }, {
       title: 'Mahjong Tiles',
       url: 'http://www.unicode.org/charts/PDF/U1F000.pdf',
@@ -88,6 +98,23 @@ HTML
   end
 end
 
+def print_plain offset_bytes, num
+  offset = Utf32.new(offset_bytes)
+  num.times { |i|
+    code = offset.add(i)
+
+    if i % 16 == 0
+      print code.to_hex
+    end
+
+    print code.to_utf8
+
+    if i % 16 == 15
+      puts
+    end
+  }
+end
+
 def print_header h, link
   puts %Q|<h2><a href="#{link}">#{h}</a></h2>|
 end
@@ -102,7 +129,7 @@ def print_table offset_bytes, num
     code = offset.add(i)
 
     if i % 16 == 0
-      puts "<tr><th>#{code.to_hex}</th>"
+      puts %Q|<tr><th class="code">#{code.to_hex}</th>|
     end
 
     print_code code
@@ -120,7 +147,7 @@ def print_code code
   puts %Q|  <td title="Symbola" class="symbola">#{code.to_utf8}</td>|
   puts %Q|  <td title="Native">#{code.to_utf8}</td>|
   puts %Q|</tr>|
-  puts %Q!<tr><td class="utf8" colspan="2">#{code.to_hex}</td></tr>!
+  puts %Q!<tr><td class="code" colspan="2">#{code.to_hex}</td></tr>!
   puts '</table></td>'
 end
 
