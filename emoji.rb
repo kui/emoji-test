@@ -26,6 +26,18 @@ def print_head
   font-family: monospace;
   text-align: center;
 }
+.codes th {
+  background-color: #ccc;
+}
+.code {
+  font-size: 80%
+}
+.codes > tbody > tr:nth-child(odd) > td:nth-child(odd) {
+  background-color: #ddf;
+}
+.codes > tbody > tr:nth-child(even) > td:nth-child(even) {
+  background-color: #ddf;
+}
 STYLE
   puts "</style>"
 end
