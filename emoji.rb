@@ -9,6 +9,9 @@ def main
   print_head
   print_body
   # print_plain "\x00\x00\x32\x00", 16*16
+
+  # u = Utf32.new("\x00\x00\x27\x64")
+  # puts u.to_escaped_utf16
 end
 
 def print_head
@@ -159,7 +162,7 @@ def print_code code
   puts %Q|  <td title="Symbola" class="symbola">#{code.to_html}</td>|
   puts %Q|  <td title="Native">#{code.to_html}</td>|
   puts %Q|</tr>|
-  puts %Q!<tr><td class="code" colspan="2">#{CGI.escapeHTML code.to_html}</td></tr>!
+  puts %Q!<tr><td class="code" colspan="2">#{code.to_escaped_utf16}</td></tr>!
   puts '</table></td>'
 end
 
@@ -185,6 +188,27 @@ class Utf32
 
   def to_utf8
     @bytes.encode('utf-8')
+  end
+
+  def to_escaped_utf8
+    unpacked = to_utf8.unpack('H*')[0]
+    width = ((unpacked.length / 4) + 1) * 4
+    unpacked.rjust(width, '0').scan(/[\da-f]{4}/).map{|s|'\\u%s'%s}.join
+  end
+
+  def to_utf16
+    @bytes.encode('utf-16')
+  end
+
+  def to_escaped_utf16
+    unpacked = to_utf16.unpack('H*')[0].sub(/^feff/,'')
+    width =
+      if (unpacked.length % 4) == 0 then
+        (unpacked.length / 4) * 4
+      else
+        ((unpacked.length / 4) + 1) * 4
+      end
+    unpacked.rjust(width, '0').scan(/[\da-f]{4}/).map{|s|'\\u%s'%s}.join
   end
 
   def add long
